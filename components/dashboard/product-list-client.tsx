@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,14 @@ interface ProductListClientProps {
 
 export function ProductListClient({ initialProducts }: ProductListClientProps) {
   const router = useRouter();
-  const [products] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+
+  useEffect(() => {
+    setProducts(initialProducts);
+  }, [initialProducts]);
 
   const filtered = useMemo(() => {
     let result = products;
@@ -54,15 +58,24 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
   }
 
   async function handleToggleStatus(id: number, currentActive: boolean) {
+    const previous = products;
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, activo: !currentActive } : p)),
+    );
+
     try {
       const res = await fetch(`/api/products/${id}/toggle-status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ activo: !currentActive }),
       });
-      if (!res.ok) { handleApiError(res); return; }
-      router.refresh();
+      if (!res.ok) {
+        setProducts(previous);
+        handleApiError(res);
+        return;
+      }
     } catch {
+      setProducts(previous);
       alert("Error al cambiar el estado del producto");
     }
   }
@@ -73,13 +86,20 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
     );
     if (!confirmed) return;
 
+    const previous = products;
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) { handleApiError(res); return; }
-      router.refresh();
+      if (!res.ok) {
+        setProducts(previous);
+        handleApiError(res);
+        return;
+      }
     } catch {
+      setProducts(previous);
       alert("Error al eliminar el producto");
     }
   }

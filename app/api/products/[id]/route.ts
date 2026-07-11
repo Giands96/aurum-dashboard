@@ -43,13 +43,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
 
-    for (const img of product.imagenes) {
-      try {
-        await deleteCloudinaryImage(img.public_id);
-      } catch {
-        // Log but continue
-      }
-    }
+    await Promise.all(
+      product.imagenes.map((img) =>
+        deleteCloudinaryImage(img.public_id).catch(() => {}),
+      ),
+    );
 
     await deleteProduct(productId);
 

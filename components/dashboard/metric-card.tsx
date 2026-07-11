@@ -37,6 +37,7 @@ export function MetricCard({ metric, icon }: MetricCardProps) {
       className={`${colors.bg} relative rounded-[20px] p-5 transition-shadow duration-150 hover:shadow-md`}
     >
       <button
+        type="button"
         aria-label="Más opciones"
         className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg hover:bg-black/5 transition-colors"
       >

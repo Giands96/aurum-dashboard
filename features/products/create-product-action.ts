@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { createProductDraft, createVariant, updateProduct, createProductImage } from "@/features/products/mutations";
 
 interface ProductImage {
@@ -24,6 +25,12 @@ export async function createProduct(
   _prevState: CreateProductState,
   formData: FormData,
 ): Promise<CreateProductState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Sesión expirada. Iniciá sesión nuevamente." };
+  }
+
   const nombre = (formData.get("nombre") as string)?.trim();
   const slug = (formData.get("slug") as string)?.trim();
   const descripcion = (formData.get("descripcion") as string)?.trim();
@@ -97,23 +104,22 @@ export async function createProduct(
       destacado,
     });
 
-    for (let i = 0; i < imagenes.length; i++) {
-      await createProductImage(
-        product.id,
-        imagenes[i].url,
-        imagenes[i].public_id,
-        i,
-      );
-    }
+    await Promise.all(
+      imagenes.map((img, i) =>
+        createProductImage(product.id, img.url, img.public_id, i),
+      ),
+    );
 
-    for (const v of variantes) {
-      await createVariant({
-        producto_id: product.id,
-        presentacion: v.presentacion.trim(),
-        precio: parseFloat(v.precio),
-        stock: parseInt(v.stock),
-      });
-    }
+    await Promise.all(
+      variantes.map((v) =>
+        createVariant({
+          producto_id: product.id,
+          presentacion: v.presentacion.trim(),
+          precio: parseFloat(v.precio),
+          stock: parseInt(v.stock),
+        }),
+      ),
+    );
 
     if (imagenes.length > 0 && variantes.length > 0) {
       await updateProduct(product.id, { activo: true });

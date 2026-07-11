@@ -82,7 +82,7 @@ export async function createProductImage(
   return image as ProductImage;
 }
 
-export async function deleteProductImages(producto_id: number): Promise<void> {
+async function deleteProductImages(producto_id: number): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase
     .from("producto_imagenes")

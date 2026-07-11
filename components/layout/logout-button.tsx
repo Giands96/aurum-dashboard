@@ -6,6 +6,7 @@ import { logout } from "@/features/auth/actions";
 export function LogoutButton() {
   return (
     <button
+      type="button"
       onClick={() => logout()}
       aria-label="Cerrar sesión"
       className="flex h-11 w-11 items-center justify-center rounded-xl text-gray-400 hover:bg-white/10 hover:text-gray-200 transition-all duration-150 group relative"

@@ -155,6 +155,7 @@ export function ProductsTable({
                 </td>
                 <td className="px-4 py-3">
                   <button
+                    type="button"
                     onClick={(e) => handleOpenMenu(p.id, e)}
                     aria-label="Más acciones"
                     className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
@@ -170,9 +171,11 @@ export function ProductsTable({
 
       {menu && product && (
         <>
-          <div
-            className="fixed inset-0 z-40"
+          <button
+            type="button"
+            className="fixed inset-0 z-40 w-full border-0 bg-transparent cursor-default"
             onClick={closeMenu}
+            aria-label="Cerrar menú"
           />
           <div
             className="fixed z-50 w-44 rounded-xl border border-gray-200 bg-white shadow-lg py-1 animate-scale-in"
@@ -186,6 +189,7 @@ export function ProductsTable({
               <Edit size={14} /> Editar
             </Link>
             <button
+              type="button"
               onClick={() => {
                 onToggleStatus(product.id, product.activo);
                 closeMenu();
@@ -203,6 +207,7 @@ export function ProductsTable({
               )}
             </button>
             <button
+              type="button"
               onClick={() => {
                 onDelete(product.id, product.nombre);
                 closeMenu();

@@ -41,6 +41,7 @@ export function DataTableHeader({
 
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-dashboard-text-secondary hover:bg-gray-50 transition-colors h-10"
           >
@@ -51,6 +52,7 @@ export function DataTableHeader({
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
+            aria-label="Filtrar por estado"
             className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-dashboard-text-primary focus:outline-none focus:border-dashboard-accent focus:ring-2 focus:ring-dashboard-blue/50"
           >
             <option value="">Todos</option>
@@ -66,6 +68,7 @@ export function DataTableHeader({
           <select
             value={categoryFilter}
             onChange={(e) => onCategoryChange(e.target.value)}
+            aria-label="Filtrar por categoría"
             className="h-9 rounded-xl border border-gray-200 bg-white px-3 text-sm text-dashboard-text-primary focus:outline-none focus:border-dashboard-accent"
           >
             <option value="">Todas las categorías</option>

@@ -33,7 +33,10 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
 
 export async function logout() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase.auth.signOut();
+  }
   revalidatePath("/", "layout");
   redirect("/login");
 }

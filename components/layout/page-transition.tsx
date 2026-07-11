@@ -10,19 +10,25 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   const prevPathname = useRef(pathname);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    if (prevPathname.current !== pathname) {
-      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
-      setTransitioning(true);
+  if (prevPathname.current !== pathname) {
+    if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+    setTransitioning(true);
 
-      timeoutRef.current = setTimeout(() => {
-        setDisplayChildren(children);
-        setTransitioning(false);
-      }, 150);
-    }
+    timeoutRef.current = setTimeout(() => {
+      setDisplayChildren(children);
+      setTransitioning(false);
+    }, 150);
 
     prevPathname.current = pathname;
-  }, [pathname, children]);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div

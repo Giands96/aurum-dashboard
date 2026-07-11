@@ -25,6 +25,7 @@ export function Header({ title, subtitle, userName, userRole }: HeaderProps) {
 
       <div className="hidden sm:flex items-center gap-3">
         <button
+          type="button"
           aria-label="Buscar"
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-dashboard-text-secondary hover:bg-gray-200 transition-colors duration-150"
         >
@@ -32,6 +33,7 @@ export function Header({ title, subtitle, userName, userRole }: HeaderProps) {
         </button>
 
         <button
+          type="button"
           aria-label="Notificaciones"
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-dashboard-text-secondary hover:bg-gray-200 transition-colors duration-150"
         >

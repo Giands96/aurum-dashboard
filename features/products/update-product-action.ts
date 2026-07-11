@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import {
   updateProduct,
   createVariant,
@@ -33,6 +34,12 @@ export async function updateProductAction(
   _prevState: UpdateProductState,
   formData: FormData,
 ): Promise<UpdateProductState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Sesión expirada. Iniciá sesión nuevamente." };
+  }
+
   const productIdRaw = (formData.get("productId") as string)?.trim();
   const productId = Number(productIdRaw);
   const nombre = (formData.get("nombre") as string)?.trim();
@@ -115,46 +122,46 @@ export async function updateProductAction(
     const existingPublicIds = new Set(existing.imagenes.map((img) => img.public_id));
     const submittedPublicIds = new Set(imagenes.map((img) => img.public_id));
 
-    for (const img of existing.imagenes) {
-      if (!submittedPublicIds.has(img.public_id)) {
-        await deleteProductImageById(img.id);
-      }
-    }
+    const imagesToDelete = existing.imagenes.filter(
+      (img) => !submittedPublicIds.has(img.public_id),
+    );
+    await Promise.all(imagesToDelete.map((img) => deleteProductImageById(img.id)));
 
-    for (let i = 0; i < imagenes.length; i++) {
-      if (!existingPublicIds.has(imagenes[i].public_id)) {
-        await createProductImage(
-          productId,
-          imagenes[i].url,
-          imagenes[i].public_id,
-          i,
-        );
-      }
-    }
+    await Promise.all(
+      imagenes.map((img, i) => {
+        if (!existingPublicIds.has(img.public_id)) {
+          return createProductImage(
+            productId,
+            img.url,
+            img.public_id,
+            i,
+          );
+        }
+        return Promise.resolve();
+      }),
+    );
 
     const existingVariantIds = new Set(existing.variantes.map((v) => v.id));
 
-    for (const v of variantes) {
+    const variantPromises = variantes.map((v) => {
       if (v.id !== undefined && existingVariantIds.has(v.id)) {
-        await updateVariant(v.id, {
-          presentacion: v.presentacion.trim(),
-          precio: parseFloat(v.precio),
-          stock: parseInt(v.stock),
-        });
         existingVariantIds.delete(v.id);
-      } else {
-        await createVariant({
-          producto_id: productId,
+        return updateVariant(v.id, {
           presentacion: v.presentacion.trim(),
           precio: parseFloat(v.precio),
           stock: parseInt(v.stock),
         });
       }
-    }
+      return createVariant({
+        producto_id: productId,
+        presentacion: v.presentacion.trim(),
+        precio: parseFloat(v.precio),
+        stock: parseInt(v.stock),
+      });
+    });
+    await Promise.all(variantPromises);
 
-    for (const oldId of existingVariantIds) {
-      await deleteVariant(oldId);
-    }
+    await Promise.all(Array.from(existingVariantIds).map((oldId) => deleteVariant(oldId)));
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : "Error al actualizar el producto",

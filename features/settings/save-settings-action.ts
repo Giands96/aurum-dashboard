@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
 import { saveStoreSettings } from "@/features/settings/mutations";
 
 interface SettingsState {
@@ -22,6 +23,12 @@ export async function saveSettings(
   }
 
   const normalizedWhatsapp = (whatsapp ?? "").replace(/[\s+\-()]/g, "");
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Sesión expirada. Iniciá sesión nuevamente." };
+  }
 
   try {
     await saveStoreSettings({

@@ -107,6 +107,7 @@ export function Sidebar() {
   return (
     <>
       <button
+        type="button"
         onClick={() => setMobileOpen(true)}
         aria-label="Abrir menú"
         className="fixed top-4 left-4 z-40 flex h-10 w-10 items-center justify-center rounded-xl bg-[#1f1f1f] text-white lg:hidden"
@@ -120,13 +121,16 @@ export function Sidebar() {
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/50 sidebar-overlay-enter"
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50 sidebar-overlay-enter w-full border-0 cursor-default"
             onClick={closeMobile}
+            aria-label="Cerrar menú"
           />
           <div className="absolute left-0 top-0 bottom-0 w-[80px] sidebar-enter">
             <div className="relative h-full">
               <button
+                type="button"
                 onClick={closeMobile}
                 aria-label="Cerrar menú"
                 className="absolute -right-10 top-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#1f1f1f] shadow-lg"

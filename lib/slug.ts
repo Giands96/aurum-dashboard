@@ -8,6 +8,6 @@ export function generateSlug(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function isValidSlug(slug: string): boolean {
+function isValidSlug(slug: string): boolean {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }

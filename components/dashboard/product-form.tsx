@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,7 +54,7 @@ export function ProductForm({
   const [state, formAction, pending] = useActionState(action, {});
   const [nombre, setNombre] = useState(initialData?.nombre ?? "");
   const [slug, setSlug] = useState(initialData?.slug ?? "");
-  const [autoSlug, setAutoSlug] = useState(!initialData?.slug);
+  const autoSlug = useRef(!initialData?.slug);
   const [descripcion, setDescripcion] = useState(
     initialData?.descripcion ?? "",
   );
@@ -73,16 +73,16 @@ export function ProductForm({
   const handleNombreChange = useCallback(
     (value: string) => {
       setNombre(value);
-      if (autoSlug) {
+      if (autoSlug.current) {
         setSlug(generateSlug(value));
       }
     },
-    [autoSlug],
+    [],
   );
 
   const handleSlugChange = useCallback((value: string) => {
     setSlug(value);
-    setAutoSlug(false);
+    autoSlug.current = false;
   }, []);
 
   const updateVariante = useCallback(
@@ -237,7 +237,7 @@ export function ProductForm({
           <div className="space-y-3">
             {variantes.map((v, i) => (
               <div
-                key={i}
+                key={v.id ?? i}
                 className="grid grid-cols-[1fr_120px_80px_36px] gap-3 items-start"
               >
                 <Input
@@ -273,6 +273,7 @@ export function ProductForm({
                   <button
                     type="button"
                     onClick={() => removeVariante(i)}
+                    aria-label="Eliminar variante"
                     className="flex h-11 w-9 items-center justify-center rounded-xl text-dashboard-text-secondary hover:text-dashboard-danger hover:bg-red-50 transition-colors mt-0"
                   >
                     <Trash2 size={16} />

@@ -1,6 +1,21 @@
 import { cn } from "@/lib/utils";
 import { type ButtonHTMLAttributes } from "react";
 
+const variants = {
+  primary: "bg-[#1f1f1f] text-white hover:bg-[#333]",
+  secondary:
+    "bg-gray-100 text-dashboard-text-primary hover:bg-gray-200 border border-gray-200",
+  ghost:
+    "bg-transparent text-dashboard-text-secondary hover:bg-gray-100",
+  danger: "bg-dashboard-danger text-white hover:bg-red-600",
+};
+
+const sizes = {
+  sm: "h-9 px-4 text-sm",
+  md: "h-11 px-5 text-sm",
+  lg: "h-12 px-6 text-base",
+};
+
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
@@ -18,21 +33,6 @@ export function Button({
 }: ButtonProps) {
   const base =
     "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dashboard-accent disabled:opacity-50 disabled:cursor-not-allowed";
-
-  const variants = {
-    primary: "bg-[#1f1f1f] text-white hover:bg-[#333]",
-    secondary:
-      "bg-gray-100 text-dashboard-text-primary hover:bg-gray-200 border border-gray-200",
-    ghost:
-      "bg-transparent text-dashboard-text-secondary hover:bg-gray-100",
-    danger: "bg-dashboard-danger text-white hover:bg-red-600",
-  };
-
-  const sizes = {
-    sm: "h-9 px-4 text-sm",
-    md: "h-11 px-5 text-sm",
-    lg: "h-12 px-6 text-base",
-  };
 
   return (
     <button

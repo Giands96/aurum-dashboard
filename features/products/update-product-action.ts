@@ -9,6 +9,7 @@ import {
   updateVariant,
   deleteVariant,
   createProductImage,
+  updateProductImageOrder,
   deleteProductImageById,
 } from "@/features/products/mutations";
 import { getProductWithVariants } from "@/features/products/queries";
@@ -130,12 +131,11 @@ export async function updateProductAction(
     await Promise.all(
       imagenes.map((img, i) => {
         if (!existingPublicIds.has(img.public_id)) {
-          return createProductImage(
-            productId,
-            img.url,
-            img.public_id,
-            i,
-          );
+          return createProductImage(productId, img.url, img.public_id, i);
+        }
+        const existing = existing.imagenes.find((e) => e.public_id === img.public_id);
+        if (existing && existing.orden !== i) {
+          return updateProductImageOrder(existing.id, i);
         }
         return Promise.resolve();
       }),

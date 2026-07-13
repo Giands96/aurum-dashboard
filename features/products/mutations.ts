@@ -92,6 +92,16 @@ async function deleteProductImages(producto_id: number): Promise<void> {
   if (error) throw new Error(`Error al eliminar imágenes: ${error.message}`);
 }
 
+export async function updateProductImageOrder(id: number, orden: number): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("producto_imagenes")
+    .update({ orden })
+    .eq("id", id);
+
+  if (error) throw new Error(`Error al actualizar orden de imagen: ${error.message}`);
+}
+
 export async function deleteProductImageById(id: number): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase

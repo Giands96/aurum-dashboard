@@ -149,6 +149,7 @@ export function ProductForm({
             onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="acqua-di-gio"
             error={fieldErr("slug")}
+            readOnly
           />
 
           <Input

@@ -133,9 +133,9 @@ export async function updateProductAction(
         if (!existingPublicIds.has(img.public_id)) {
           return createProductImage(productId, img.url, img.public_id, i);
         }
-        const existing = existing.imagenes.find((e) => e.public_id === img.public_id);
-        if (existing && existing.orden !== i) {
-          return updateProductImageOrder(existing.id, i);
+        const existingImg = existing.imagenes.find((e) => e.public_id === img.public_id);
+        if (existingImg && existingImg.orden !== i) {
+          return updateProductImageOrder(existingImg.id, i);
         }
         return Promise.resolve();
       }),

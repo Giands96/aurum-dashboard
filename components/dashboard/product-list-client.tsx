@@ -20,10 +20,6 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  useEffect(() => {
-    setProducts(initialProducts);
-  }, [initialProducts]);
-
   const filtered = useMemo(() => {
     let result = products;
 

@@ -166,9 +166,9 @@ export default async function DashboardPage() {
 
               <div className="w-full lg:w-[320px]">
                 <HighlightCard
-                  title="Gestioná tu catálogo"
+                  title="Gestiona tu catálogo"
                   highlighted="Productos"
-                  description="Creá, editá y organizá todos tus perfumes y relojes desde un solo lugar."
+                  description="Crea, edita y organiza todos tus perfumes y relojes desde un solo lugar."
                   actionLabel="Ir a productos"
                   actionHref="/dashboard/productos"
                 />

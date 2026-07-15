@@ -1,24 +1,18 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImageUploader } from "@/components/dashboard/image-uploader";
+import { ProductVariantsSection, type VariantData } from "@/components/dashboard/product-form-variants";
 import { generateSlug } from "@/lib/slug";
-import { Trash2, Plus, ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle, X } from "lucide-react";
 import Link from "next/link";
 
 interface ImageData {
   url: string;
   public_id: string;
-}
-
-interface VariantData {
-  id?: number;
-  presentacion: string;
-  precio: string;
-  stock: string;
 }
 
 export interface ProductFormState {
@@ -54,7 +48,8 @@ export function ProductForm({
   const [state, formAction, pending] = useActionState(action, {});
   const [nombre, setNombre] = useState(initialData?.nombre ?? "");
   const [slug, setSlug] = useState(initialData?.slug ?? "");
-  const autoSlug = useRef(!initialData?.slug);
+  const [showNameConfirm, setShowNameConfirm] = useState(false);
+  const [pendingSlug, setPendingSlug] = useState("");
   const [descripcion, setDescripcion] = useState(
     initialData?.descripcion ?? "",
   );
@@ -73,17 +68,31 @@ export function ProductForm({
   const handleNombreChange = useCallback(
     (value: string) => {
       setNombre(value);
-      if (autoSlug.current) {
+
+      if (!isEditing) {
         setSlug(generateSlug(value));
+        return;
+      }
+
+      if (value !== initialData?.nombre) {
+        setPendingSlug(generateSlug(value));
+        setShowNameConfirm(true);
+      } else {
+        setShowNameConfirm(false);
       }
     },
-    [],
+    [isEditing, initialData?.nombre],
   );
 
-  const handleSlugChange = useCallback((value: string) => {
-    setSlug(value);
-    autoSlug.current = false;
-  }, []);
+  const confirmNameChange = useCallback(() => {
+    setSlug(pendingSlug);
+    setShowNameConfirm(false);
+  }, [pendingSlug]);
+
+  const cancelNameChange = useCallback(() => {
+    setNombre(initialData?.nombre ?? "");
+    setShowNameConfirm(false);
+  }, [initialData?.nombre]);
 
   const updateVariante = useCallback(
     (i: number, field: keyof VariantData, value: string) => {
@@ -141,12 +150,41 @@ export function ProductForm({
             error={fieldErr("nombre")}
           />
 
+          {showNameConfirm && (
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-amber-50 border border-amber-200 p-3">
+              <div className="flex items-center gap-2 text-sm text-amber-800">
+                <AlertTriangle size={16} className="shrink-0" />
+                <span>
+                  ¿Estás seguro de que querés cambiar el nombre? Esto cambiará la
+                  dirección de la página a{" "}
+                  <strong className="text-amber-900">/{pendingSlug}</strong>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={confirmNameChange}
+                  className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700 transition-colors"
+                >
+                  Sí, actualizar
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelNameChange}
+                  className="rounded-lg p-1.5 text-amber-500 hover:text-amber-700 hover:bg-amber-100 transition-colors"
+                  aria-label="Cancelar cambio de nombre"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
           <Input
             id="slug"
             name="slug"
             label="Slug (URL)"
             value={slug}
-            onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="acqua-di-gio"
             error={fieldErr("slug")}
             readOnly
@@ -221,69 +259,13 @@ export function ProductForm({
           )}
         </div>
 
-        <div className="rounded-[24px] bg-white border border-dashboard-border p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-dashboard-text-primary">
-              Variantes
-            </h2>
-            <Button type="button" variant="ghost" size="sm" onClick={addVariante}>
-              <Plus size={16} /> Agregar
-            </Button>
-          </div>
-
-          {fieldErr("variantes") && (
-            <p className="text-sm text-dashboard-danger">{fieldErr("variantes")}</p>
-          )}
-
-          <div className="space-y-3">
-            {variantes.map((v, i) => (
-              <div
-                key={v.id ?? i}
-                className="grid grid-cols-[1fr_120px_80px_36px] gap-3 items-start"
-              >
-                <Input
-                  id={`variante_${i}_presentacion`}
-                  name={`variante_${i}_presentacion`}
-                  placeholder="Presentación (ej: 100 ml)"
-                  value={v.presentacion}
-                  onChange={(e) =>
-                    updateVariante(i, "presentacion", e.target.value)
-                  }
-                  error={fieldErr(`variante_${i}_presentacion`)}
-                />
-                <Input
-                  id={`precio_${i}`}
-                  placeholder="Precio"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={v.precio}
-                  onChange={(e) => updateVariante(i, "precio", e.target.value)}
-                  error={fieldErr(`variante_${i}_precio`)}
-                />
-                <Input
-                  id={`stock_${i}`}
-                  placeholder="Stock"
-                  type="number"
-                  min="0"
-                  value={v.stock}
-                  onChange={(e) => updateVariante(i, "stock", e.target.value)}
-                  error={fieldErr(`variante_${i}_stock`)}
-                />
-                {variantes.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeVariante(i)}
-                    aria-label="Eliminar variante"
-                    className="flex h-11 w-9 items-center justify-center rounded-xl text-dashboard-text-secondary hover:text-dashboard-danger hover:bg-red-50 transition-colors mt-0"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <ProductVariantsSection
+          variantes={variantes}
+          onUpdateVariante={updateVariante}
+          onAddVariante={addVariante}
+          onRemoveVariante={removeVariante}
+          fieldErr={fieldErr}
+        />
 
         {state.error && (
           <div className="rounded-xl bg-red-50 p-3 text-sm text-dashboard-danger">

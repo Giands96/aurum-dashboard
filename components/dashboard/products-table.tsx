@@ -117,11 +117,17 @@ export function ProductsTable({
 
       {
         productSelected && (
-          <div
+          <button
+            type="button"
+            aria-label="Cerrar menú"
             className="
               fixed
               inset-0
               z-40
+              cursor-default
+              bg-transparent
+              border-none
+              p-0
             "
             onClick={() => setMenuProductId(null)}
           />
